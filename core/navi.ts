@@ -1,5 +1,5 @@
 import { TCoords, TGuide, TUserLocation } from '@/types';
-import { KAKAO_REST_API_KEY } from '@env';
+import { getDistance } from './util';
 
 export const getGuides = async (
   userLocation: TCoords,
@@ -18,7 +18,7 @@ export const getGuides = async (
     {
       method: 'GET',
       headers: {
-        'Authorization': `KakaoAK ${KAKAO_REST_API_KEY}`,
+        'Authorization': `KakaoAK ${process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY}`,
         'Content-Type': 'application/json',
       },
     }
@@ -34,8 +34,8 @@ export const getGuides = async (
   } else if ('routes' in data && data.routes[0].result_code === 0) {
     toast = {
       type: 'success',
-      text1: '길찾기 성공!',
-      text2: '경로 안내를 시작하겠습니다.',
+      text1: '경로 안내 시작!',
+      text2: '출발시 지도에 표시된 선을 따라 출발하세요.',
     };
 
     guides = data.routes[0].sections[0].guides;
@@ -57,10 +57,32 @@ export const getGuides = async (
 };
 
 export const updateGuide = (
-  guides: TGuide[] | null,
-  userLocation: TUserLocation | undefined
+  guides: TGuide[],
+  guideIdx: number,
+  userLocation: TUserLocation,
+  setGuideIdx: React.Dispatch<React.SetStateAction<number>>
 ) => {
-  if (!guides || !userLocation) return;
+  guides.forEach((guide, idx) => {
+    const distanceToGuide = getDistance(
+      {
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+      },
+      { latitude: guide.y, longitude: guide.x }
+    );
 
-  // 가이드를 표시할 기준에 따라 코딩하기
+    // 현재 가이드와 멀어졌을 때
+    if (idx === guideIdx && distanceToGuide > 5) {
+      // 직진 가이드 출력
+      console.log('직진...');
+    }
+
+    // 새 가이드에 근접했을 때
+    if (idx !== guideIdx && distanceToGuide <= 10) {
+      setGuideIdx(idx);
+
+      // 가이드 내용 출력
+      console.log(`가이드: ${guide.guidance}`);
+    }
+  });
 };

@@ -9,8 +9,8 @@ export default function Map() {
   const [userLocation, setUserLocation] = useState<TUserLocation>();
   const [destLocation, setDestLocation] = useState<TCoords>();
   const [isLocationDenied, setIsLocationDenied] = useState<boolean>(false);
-
-  let gGuides: TGuide[] | null = null;
+  const [guides, setGuides] = useState<TGuide[]>();
+  const [guideIdx, setGuideIdx] = useState<number>(0);
 
   const onPress = async (coords: TCoords) => {
     setDestLocation(coords);
@@ -24,20 +24,25 @@ export default function Map() {
     if (!userLocation || !destLocation) return;
 
     const navi = async () => {
-      const { toast, guides } = await getGuides(userLocation, destLocation);
+      const { toast, guides: gd } = await getGuides(userLocation, destLocation);
 
       Toast.show(toast);
 
-      if (!guides) return;
+      if (!gd) return;
 
-      gGuides = guides;
+      setGuides(gd);
+
+      // 직진 가이드 출력
+      console.log('직진...');
     };
 
     navi();
   }, [destLocation]);
 
   useEffect(() => {
-    updateGuide(gGuides, userLocation);
+    if (!guides || !userLocation) return;
+
+    updateGuide(guides, guideIdx, userLocation, setGuideIdx);
   }, [userLocation]);
 
   if (userLocation) {
