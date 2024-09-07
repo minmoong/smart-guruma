@@ -29,6 +29,7 @@
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
     "expo-web-browser": "~13.0.3",
+    "haversine": "^1.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.5",
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/haversine": "^1.1.8",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.2.45",
     "@types/react-native-dotenv": "^0.2.2",
