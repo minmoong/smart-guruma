@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Circle, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { TCoords, TGuide, TUserLocation } from '@/types';
-import { getGuides, requestLocation, updateGuide } from '@/core';
-import Toast from 'react-native-toast-message';
+import { updateGuide } from '@/core';
 import { getDistance } from '@/core/util';
+import GooglePlacesInput from './GooglePlacesInput';
 
 export default function Map() {
   const [userLocation, setUserLocation] = useState<TUserLocation>();
@@ -12,6 +12,9 @@ export default function Map() {
   const [isLocationDenied, setIsLocationDenied] = useState<boolean>(false);
   const [guides, setGuides] = useState<TGuide[]>();
   const [guideIdx, setGuideIdx] = useState<number>(0);
+  const [searchLocation, setSearchLocation] = useState<TCoords>();
+
+  const mapRef = useRef<MapView>(null);
 
   /** 시뮬 */
   const sim = async () => {
@@ -201,27 +204,51 @@ export default function Map() {
     updateGuide(guides, guideIdx, userLocation, setGuideIdx);
   }, [userLocation]);
 
+  useEffect(() => {
+    if (!searchLocation) return;
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: searchLocation.latitude,
+        longitude: searchLocation.longitude,
+        latitudeDelta: 0.003,
+        longitudeDelta: 0.003,
+      });
+    }
+  }, [searchLocation]);
+
   if (userLocation) {
     return (
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={{
-          latitude: userLocation.latitude,
-          longitude: userLocation.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-        onPress={(event) => onPress(event.nativeEvent.coordinate)}
-        showsUserLocation
-        followsUserLocation
-        showsMyLocationButton
-      >
-        {destLocation && <Marker coordinate={destLocation} />}
+      <>
+        <GooglePlacesInput
+          userLocation={userLocation}
+          setSearchLocation={setSearchLocation}
+        />
+        <MapView
+          ref={mapRef}
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          initialRegion={{
+            latitude: userLocation.latitude,
+            longitude: userLocation.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+          onPress={(event) => onPress(event.nativeEvent.coordinate)}
+          showsUserLocation
+          followsUserLocation
+          showsMyLocationButton={false}
+        >
+          {destLocation && <Marker coordinate={destLocation} />}
 
-        {/** 시뮬 */}
-        {userLocation && <Marker coordinate={userLocation} />}
-      </MapView>
+          {searchLocation && (
+            <Marker coordinate={searchLocation} pinColor="#4169e1" />
+          )}
+
+          {/** 시뮬 */}
+          {userLocation && <Marker coordinate={userLocation} />}
+        </MapView>
+      </>
     );
   } else if (isLocationDenied) {
     return (
