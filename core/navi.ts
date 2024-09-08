@@ -1,4 +1,4 @@
-import { TCoords, TGuide, TUserLocation } from '@/types';
+import { getUserDirection, TCoords, TGuide, TUserLocation } from '@/types';
 import { getDistance } from './util';
 
 export const getGuides = async (
@@ -74,22 +74,33 @@ export const updateGuide = (
     /** 현재 가이드와 멀어졌을 때 */
     if (idx === guideIdx && distanceToGuide > 3) {
       /** 직진 가이드 출력 */
-      console.log('직진...');
+      console.log('가이드: 직진');
     }
 
     /** 새 가이드에 근접했을 때 */
     if (idx !== guideIdx && distanceToGuide <= 10) {
       setGuideIdx(idx);
 
-      if (guide.type === 101) {
-        /** TODO: enum으로 */
-        console.log('가이드: 목적지에 도착하였습니다. 안내를 종료합니다.');
-
-        return;
+      switch (getUserDirection(guide.type)) {
+        case 'STRAIGHT':
+          console.log('가이드: 직진');
+          return;
+        case 'LEFT':
+          console.log('가이드: 좌회전');
+          return;
+        case 'RIGHT':
+          console.log('가이드: 우회전');
+          return;
+        case 'UTURN':
+          console.log('가이드: 유턴');
+          return;
+        case 'DEST':
+          console.log('가이드: 목적지에 도착하였습니다. 안내를 종료합니다.');
+          return;
+        case 'UNKNOWN':
+          console.log('가이드: LED 끄기(지도 참고)');
+          return;
       }
-
-      /** 가이드 내용 출력 */
-      console.log(`가이드: ${guide.guidance}`);
     }
   });
 };
