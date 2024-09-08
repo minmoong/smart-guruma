@@ -23,6 +23,14 @@ export const requestLocation = async (
     return;
   }
 
+  let loc = await Location.getCurrentPositionAsync({});
+
+  setUserLocation({
+    latitude: loc.coords.latitude,
+    longitude: loc.coords.longitude,
+    heading: loc.coords.heading ?? 0,
+  });
+
   let locationSubscription = await Location.watchPositionAsync(
     {
       accuracy: Location.Accuracy.BestForNavigation,
