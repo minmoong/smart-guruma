@@ -1,5 +1,4 @@
 import { TCoords } from '@/types';
-import haversine from 'haversine';
 
 export const getDistance = (userCoords: TCoords, destCoords: TCoords) => {
   const lat1 = userCoords.latitude;
