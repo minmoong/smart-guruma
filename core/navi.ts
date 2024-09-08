@@ -71,17 +71,24 @@ export const updateGuide = (
       { latitude: guide.y, longitude: guide.x }
     );
 
-    // 현재 가이드와 멀어졌을 때
-    if (idx === guideIdx && distanceToGuide > 5) {
-      // 직진 가이드 출력
+    /** 현재 가이드와 멀어졌을 때 */
+    if (idx === guideIdx && distanceToGuide > 3) {
+      /** 직진 가이드 출력 */
       console.log('직진...');
     }
 
-    // 새 가이드에 근접했을 때
+    /** 새 가이드에 근접했을 때 */
     if (idx !== guideIdx && distanceToGuide <= 10) {
       setGuideIdx(idx);
 
-      // 가이드 내용 출력
+      if (guide.type === 101) {
+        /** TODO: enum으로 */
+        console.log('가이드: 목적지에 도착하였습니다. 안내를 종료합니다.');
+
+        return;
+      }
+
+      /** 가이드 내용 출력 */
       console.log(`가이드: ${guide.guidance}`);
     }
   });

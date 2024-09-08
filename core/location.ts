@@ -28,11 +28,11 @@ export const requestLocation = async (
       accuracy: Location.Accuracy.BestForNavigation,
     },
     (location) => {
-      setUserLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        heading: location.coords.heading ?? 0,
-      });
+      // setUserLocation({
+      //   latitude: location.coords.latitude,
+      //   longitude: location.coords.longitude,
+      //   heading: location.coords.heading ?? 0,
+      // });
     }
   );
 };
